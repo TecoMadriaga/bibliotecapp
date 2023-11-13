@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bibliotecapp</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}¡Bienvenidos!{% endblock %}
+
+{% block content %}
     <h1>BibliotecApp</h1>
     <p>Esta es la página principal de la aplicación</p>
-</body>
-</html>
+
+    <a href="{% url 'lista-libros' %}">Ver listado de libros</a>
+    <a href="{% url 'signup' %}">Registrarse</a>
+    <a href="{% url 'login' %}">Iniciar Sesión</a>
+{% endblock %}
