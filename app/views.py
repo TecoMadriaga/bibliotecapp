@@ -1,3 +1,5 @@
 from django.shortcuts import render
+from app.models import Libro, Prestamo, PerfilUsuario
 
-# Create your views here.
+def index(request):
+    return render(request, "index.html")
