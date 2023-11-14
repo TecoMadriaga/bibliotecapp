@@ -3,14 +3,18 @@
 {% block title %}Listado de libros{% endblock %}
 
 {% block content %}
-    <h1>Lista de Libros</h1>
-    <ul>
-        {% for libro in libros %}
-            <li>
-                <a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a>
-            </li>
-        {% empty %}
-            <li>No hay libros registrados.</li>
-        {% endfor %}
-    </ul>
+    <section>
+        <div class="container">
+            <h1>Lista de Libros</h1>
+            <ul>
+                {% for libro in libros %}
+                    <li>
+                        <a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a>
+                    </li>
+                {% empty %}
+                    <li>No hay libros registrados.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
 {% endblock %}

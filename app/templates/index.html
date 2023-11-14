@@ -3,10 +3,13 @@
 {% block title %}¡Bienvenidos!{% endblock %}
 
 {% block content %}
-    <h1>BibliotecApp</h1>
-    <p>Esta es la página principal de la aplicación</p>
-
-    <a href="{% url 'lista-libros' %}">Ver listado de libros</a>
-    <a href="{% url 'signup' %}">Registrarse</a>
-    <a href="{% url 'login' %}">Iniciar Sesión</a>
+    <section>
+        <div class="container">
+            <h1>BibliotecApp</h1>
+            <p>Esta es la página principal de la aplicación</p>
+            <a href="{% url 'lista-libros' %}">Ver listado de libros</a>
+            <a href="{% url 'signup' %}">Registrarse</a>
+            <a href="{% url 'login' %}">Iniciar Sesión</a>
+        </div>
+    </section>
 {% endblock %}
