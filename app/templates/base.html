@@ -1,20 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}{% endblock %} - BibliotecaApp</title>
     <!-- TODO: Incluir CSS común, favicon, etc. -->
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
 </head>
+
 <body>
-    {% block content %}
-    {% endblock %}
+    <header class="site-header">
+        <div class="container flex">
+            <div class="logo">
+                <a href="/">
+                    <img src="{% static 'img/logo.png' %}" alt="Logo de la Biblioteca" />
+                </a>
+            </div>
+
+            <div class="flex">
+                <!-- Botón cambiar tema claro/oscuro -->
+                <div class="theme-switcher">
+                    <button id="theme-toggle">Cambiar Tema</button>
+                </div>
+
+                {% if user.is_authenticated %}
+                <!-- Botón de perfil -->
+                <div class="profile">
+                    {% comment %}
+                    <a href="{% url 'profile' %}">
+                        <img src="{% static 'img/profile.png' %}" alt="Perfil" />
+                    </a>
+                    {% endcomment %}
+                </div>
+                {% else %}
+                <!-- Botón de inicio de sesión -->
+                <div class="login">
+                    <a href="{% url 'login' %}">
+                        <img src="{% static 'img/login.png' %}" alt="Iniciar sesión" />
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- El contenido específico de la página reemplazará este bloque -->
+        {% endblock %}
+    </main>
 
     <footer>
         <p>Desarrollado por Geovanni Molina y Sergio Madriaga</p>
     </footer>
+
+    <script>
+        // Cambiar tema claro/oscuro
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        themeToggleBtn.addEventListener("click", () => {
+            document.documentElement.hasAttribute("data-theme")
+                ? (document.documentElement.removeAttribute("data-theme"),
+                    localStorage.removeItem("theme"))
+                : (document.documentElement.setAttribute("data-theme", "dark"),
+                    localStorage.setItem("theme", "dark"));
+        }),
+            document.addEventListener("DOMContentLoaded", () => {
+                "dark" === localStorage.getItem("theme") &&
+                    document.documentElement.setAttribute("data-theme", "dark");
+            });
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem("theme");
+            if (savedTheme) {
+                document.documentElement.setAttribute("data-theme", savedTheme);
+            }
+        });
+    </script>
 </body>
+
 </html>

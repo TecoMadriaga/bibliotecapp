@@ -1,22 +1,90 @@
-body {
-    background-color: rgb(7, 128, 87);
-    display: flex;
-    flex-direction: column;
+:root {
+  --color-cream: #f5f4f2;
+  --color-brown-dark: #755632;
+  --color-brown: #daaa63;
+  --color-tan: #f3e5d0;
+  --color-tan-light: #e8dfd1;
+  --dark-bg: #333;
+  --dark-text: #ffffff;
+  --dark-card: #424242;
+  --font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  --border-radius: 0.5rem;
 }
 
-section, footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+body {
+  background-color: var(--color-cream);
+  color: var(--color-brown-dark);
+  font-family: var(--font-family);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.card {
+  background-color: var(--color-tan-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+section,
+footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .container {
-    width: 100%;
-    max-width: 1200px;
+  max-width: 1200px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 footer {
-    background-color: rgba(0, 0, 0, .8);
-    color: white;
+  background-color: var(--color-brown-dark);
+  color: var(--color-cream);
+  padding: 1rem;
+  width: 100%;
+}
+
+[data-theme="dark"] {
+  --primary-color: var(--dark-bg);
+  --secondary-color: var(--dark-text);
+  --background-color: var(--dark-bg);
+  --text-color: var(--dark-text);
+  --card-background: var(--dark-card);
+}
+
+[data-theme="dark"] body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .card {
+  background-color: var(--card-background);
+}
+
+[data-theme="dark"] footer {
+  background-color: var(--dark-bg);
+}
+
+[data-theme="dark"] a {
+  color: var(--dark-text);
 }
