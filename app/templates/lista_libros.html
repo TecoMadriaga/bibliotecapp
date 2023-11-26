@@ -1,20 +1,40 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Listado de libros{% endblock %}
 
 {% block content %}
-    <section>
-        <div class="container">
-            <h1>Lista de Libros</h1>
-            <ul>
-                {% for libro in libros %}
-                    <li>
-                        <a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a>
-                    </li>
-                {% empty %}
-                    <li>No hay libros registrados.</li>
-                {% endfor %}
-            </ul>
+
+    <section id="popular-courses" class="courses">
+        <div class="container tm-pt-60">
+    
+          <div class="section-title">
+            <h2>Libros</h2>
+            <p>Listado de libros</p>
+          </div>
+    
+          <div class="row">
+            {% for libro in libros %}
+            <div class="col-lg-4 col-md-6 d-flex align-items-stretch">
+              <div class="course-item">
+                <img src="{{ libro.imagen.url }}" class="img-fluid" alt="...">
+                <div class="course-content">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    {% for categoria in libro.categorias.all %}
+                    <h4>{{ categoria.nombre }}</h4>
+                    {% endfor %}
+                  </div>
+                  <h3><a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a></h3>
+                  <p>{{ libro.description }}</p>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+                <p>No hay libros disponibles</p>
+            {% endfor %}
+            </div>
+          </div>
         </div>
     </section>
 {% endblock %}

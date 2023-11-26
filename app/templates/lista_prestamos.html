@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Préstamos{% endblock %}
+{% block content %}
+<section>
+    <div class="container tm-pt-60">
+        <div class="section-title">
+            <h2 >Préstamos</h2>
+            <p >Listado de préstamos</p>
+        </div>
+        <div class="row">
+            <table class="table table-striped table-hover table-responsive">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Solicitante</th>
+                        <th scope="col">Libro</th>
+                        <th scope="col">Fecha de préstamo</th>
+                        <th scope="col">Fecha de devolución</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Multa</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prestamo in prestamos %}
+                        {% for libro in prestamo.libros.all %}
+                            <tr>
+                                <td>{{ prestamo.solicitante.first_name }} {{ prestamo.solicitante.last_name }}</td>
+                                <td><a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a></td>
+                                <td>{{ prestamo.fecha_prestamo }}</td>
+                                <td>{{ prestamo.fecha_devolucion_estimada }}</td>
+                                <td >
+                                    {% if prestamo.estado == 'Devuelto' %}
+                                        <span class="badge bg-success">Devuelto</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">En préstamo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if prestamo.multa == 0 %}
+                                        Sin multa
+                                    {% else %}
+                                        $ {{ prestamo.multa }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if prestamo.estado == 'Prestado' %}
+                                        <a href="#" class="btn btn-primary btn-sm" onclick="marcarDevuelto({{ prestamo.id }})">Marcar como devuelto</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<script>
+    const marcarDevuelto = (pk) => {
+        if (confirm('¿Está seguro que desea marcar este préstamo como "Devuelto"?')) {
+            window.location.href = "/marcar_devuelto/" + pk;
+        }
+    }
+</script>
+{% endblock %}

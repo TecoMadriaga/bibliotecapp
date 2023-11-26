@@ -1,30 +1,24 @@
-"""
-URL configuration for sistemabiblioteca project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path
 from app import views
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
+from django.contrib.auth.views import LogoutView
+from django.urls import path
 
 urlpatterns = [
+    path('', views.index, name="index"),
     path('admin/', admin.site.urls),
+    path('historial/', views.lista_historial, name='historial'),
     path('libros/', views.lista_libros, name='lista-libros'),
-    path('libros/<int:pk>/', views.DetalleLibro.as_view(), name='detalle-libro'),
-    path('login/', views.login, name='login'),
-    path('registro/', views.RegistroUsuario.as_view(), name='registro'),
+    path('libros/<int:pk>', views.DetalleLibro.as_view(), name='detalle-libro'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.user_logout, name="logout"),
+    path('mis_prestamos/', views.lista_prestamos, name='mis-prestamos'),
+    path('prestamo/<int:pk>', views.manejar_prestamo, name='actualizar-prestamo'),
+    path('prestamo/nuevo/', views.manejar_prestamo, name='nuevo-prestamo'),
+    path('prestamos/', views.lista_todos_prestamos, name='prestamos'),
     path('signup/', views.RegistroUsuario.as_view(), name='signup'),
-    path('user_login/', views.user_login, name='user_login'),
-    path("", views.index, name="index"),
-]
+    path('user_login/', views.user_login, name='user-login'),
+    path('user_logout/', views.user_logout, name='user-logout'),
+    path('marcar_devuelto/<int:pk>', views.marcar_devuelto, name='marcar-devuelto'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

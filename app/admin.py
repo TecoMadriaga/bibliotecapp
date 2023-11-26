@@ -18,7 +18,7 @@ class LibroAdmin(admin.ModelAdmin):
             'fields': ('titulo', 'autores', 'editorial')
         }),
         ('Información Adicional', {
-            'fields': ('anio_publicacion', 'categorias'),
+            'fields': ('anio_publicacion', 'categorias', 'imagen', 'descripcion', 'stock'),
             'classes': ('collapse',),
         }),
     )

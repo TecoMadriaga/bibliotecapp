@@ -3,16 +3,20 @@
 
 <section>
     <div class="container">
-        <h1>Iniciar Sesión</h1>
-
-        <form method="post" action="/user_login">
+        <div class="section-title tm-pt-60">
+            <h2>BibliotecApp</h2>
+            <p>Inicia Sesión</p>
+          </div>
+        <form method="post">
             {% csrf_token %}
-            <label for="id_username">Nombre de Usuario</label>
-            <input type="text" name="username" id="id_username" required autofocus>
-            <label for="id_password">Contraseña</label>
-            <input type="password" name="password" id="id_password" required>
-            <button type="submit">Iniciar Sesión</button>
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            <input type="hidden" name="next" value="{{ next }}" />
         </form>
+        <div class="d-flex flex-column mt-3">
+            <p>¿No tienes una cuenta? <a href="{% url 'signup' %}">Regístrate aquí</a></p>
+            <p><a href="">¿Olvidaste tu contraseña?</a></p>
+        </div>
     </div>
 </section>
 

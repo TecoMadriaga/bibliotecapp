@@ -4,12 +4,15 @@
 
 {% block content %}
     <section>
-        <div class="container">
-            <h1>Registro de Usuario</h1>
+        <div class="container tm-pt-60">
+            <div class="section-title">
+                <h2>BibliotecApp</h2>
+                <p>Registro de Usuario</p>
+              </div>
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit">Registrarse</button>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
             </form>
         </div>
     </section>
