@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
-{% load static %}
 {% block title %}Préstamos{% endblock %}
 {% block content %}
 <section>
     <div class="container tm-pt-60">
         <div class="section-title">
-            <h2 >Préstamos</h2>
-            <p >Listado de préstamos</p>
+            <h2>Préstamos</h2>
+            <p>Listado de préstamos</p>
         </div>
         <div class="row">
             <table class="table table-striped table-hover table-responsive">
@@ -58,9 +57,9 @@
 </section>
 <script>
     const marcarDevuelto = (pk) => {
-        if (confirm('¿Está seguro que desea marcar este préstamo como "Devuelto"?')) {
+        alertify.confirm('Confirmar', '¿Está seguro que desea marcar este préstamo como "Devuelto"?', function(){
             window.location.href = "/marcar_devuelto/" + pk;
-        }
+        }, function(){});
     }
 </script>
 {% endblock %}

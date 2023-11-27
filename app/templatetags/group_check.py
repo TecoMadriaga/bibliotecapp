@@ -1,5 +1,6 @@
 from django import template
 from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import user_passes_test
 
 register = template.Library()
 

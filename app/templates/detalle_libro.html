@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 
 {% block title %}Libro: {{ libro.titulo }}{% endblock %}
-
+{% load static %}
+{% load group_check %}
 {% block content %}
     <section id="course-details" class="course-details">
         <div class="container tm-pt-60">
   
           <div class="row">
             <div class="col-lg-8">
+              {% if libro.imagen %}
               <img src="{{ libro.imagen.url }}" class="img-fluid" alt="">
+              {% else %}
+              <img src="{% static 'img/default.webp' %}" class="img-fluid" alt="">
+              {% endif %}
               <h3>{{ libro.titulo }}</h3>
               <p>
                 {% if libro.descripcion %}
@@ -45,10 +50,13 @@
               
               {% if user.is_authenticated %}
               <div class="course-info d-flex justify-content-between align-items-center">
-                <button class="btn btn-primary"><a href="{% url 'nuevo-prestamo' %}" class="text-white">Pedir prestado</a></button>
+                <button class="btn btn-primary"><a href="{% url 'nuevo-prestamo' libro.id %}" class="text-white">Pedir prestado</a></button>
               {% else %}
               <div class="course-info d-flex justify-content-between align-items-center">
                 <button class="btn btn-primary"><a href="{% url 'login' %}" class="text-white">Inicia sesión para pedir prestado</a></button>
+              {% endif %}
+              {% if user|has_group:'Bibliotecario' %}
+                <button class="btn btn-primary"><a href="{% url 'edit-libro' libro.id %}" class="text-white">Editar</a></button>
               {% endif %}
             </div>
           </div>

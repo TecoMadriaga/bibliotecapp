@@ -4,15 +4,15 @@
 <section>
     <div class="container tm-pt-60">
         <div class="section-title">
-            <h2>Prestamos</h2>
-            <p>{% if prestamo %}Actualizar Prestamo{% else %}Crear Prestamo{% endif %}</p>
-          </div>
+            <h2>Administración</h2>
+            <p>{% if libro %}Actualizar Libro{% else %}Nuevo Libro{% endif %}</p>
+        </div>
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <input type="submit" value="Guardar" class="btn btn-primary">
             <button onclick="window.history.back();" class="btn btn-danger">Cancelar</button>
-        </form>            
-    </div>      
+        </form>
+    </div>
 </section>
 {% endblock %}

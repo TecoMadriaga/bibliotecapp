@@ -18,15 +18,20 @@
             {% for libro in libros %}
             <div class="col-lg-4 col-md-6 d-flex align-items-stretch">
               <div class="course-item">
+                
+                {% if libro.imagen %}
                 <img src="{{ libro.imagen.url }}" class="img-fluid" alt="...">
+                {% else %}
+                <img src="{% static 'img/default.webp' %}" class="img-fluid" alt="">
+                {% endif %}
                 <div class="course-content">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center mb-3 gap-3">
                     {% for categoria in libro.categorias.all %}
                     <h4>{{ categoria.nombre }}</h4>
                     {% endfor %}
                   </div>
                   <h3><a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a></h3>
-                  <p>{{ libro.description }}</p>
+                  <p>{{ libro.descripcion }}</p>
                 </div>
               </div>
             </div>

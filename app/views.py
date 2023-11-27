@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import DetailView
+from django.contrib.auth.models import User, Group
 
 def index(request):
     return render(request, "index.html")
@@ -35,25 +36,14 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 datos = { 'usuario': user, 'mensaje': f'Bienvenido {user.username}!', 'info': 'login'}
-                historial = f'{user.username} inició sesión'
-                registrar_uso(user, historial)
+                historial = f'Inició sesión'
+                registrar_uso(user, historial, 'User')
                 return render(request, 'index.html', datos)
     else:
         form = AuthenticationForm()
 
     return render(request, 'login.html', {'form': form})
 
-@login_required
-def logout_view(request):
-    return render(request, 'confirm_logout.html')
-
-@login_required
-def user_logout(request):
-    accion = f"{request.user.username} cerró sesión"
-    registrar_uso(request.user, accion)
-    logout(request)
-    datos = { 'info': 'logout', 'mensaje': 'Has cerrado sesión exitosamente.'}
-    return render(request, 'index.html', datos)
 
 def user_login(request):
     if request.method == "POST":
@@ -77,77 +67,128 @@ def user_login(request):
         return render(request, 'login.html')
 
 @login_required
-def dashboard(request):
-    return render(request, 'dashboard.html', {'username': request.user.username})
+def user_logout(request):
+    accion = f"Cerró sesión"
+    registrar_uso(request.user, accion, 'User')
+    logout(request)
+    datos = { 'info': 'logout', 'mensaje': 'Has cerrado sesión exitosamente.'}
+    return render(request, 'index.html', datos)
 
 @login_required
 def crear_libro(request):
-    if request.method == 'POST':
-        form = LibroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            accion = f"{request.user.username} creó el libro {form.cleaned_data['titulo']}"
-            registrar_uso(request.user, accion, 'libro')
-            return redirect('lista_libros')
+    if request.user.groups.filter(name='bibliotecario').exists():
+        if request.method == 'POST':
+            form = LibroForm(request.POST)
+            if form.is_valid():
+                form.save()
+                accion = f"Creó el libro {form.cleaned_data['titulo']}"
+                registrar_uso(request.user, accion, 'Libro')
+                datos = { 'info': 'libro', 'mensaje': f'Has creado el libro {form.cleaned_data["titulo"]} exitosamente.', 'libros': Libro.objects.all()}
+                return render(request, 'lista_libros.html', datos)
+        else:
+            form = LibroForm()
+        return render(request, 'libro_form.html', {'form': form})
     else:
-        form = LibroForm()
-    return render(request, 'libro_form.html', {'form': form})
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 
 @login_required
-def actualizar_libro(request, pk):
-    libro = Libro.objects.get(pk=pk)
-    if request.method == 'POST':
-        form = LibroForm(request.POST, instance=libro)
-        if form.is_valid():
-            form.save()
-            accion = f"{request.user.username} actualizó el libro {form.cleaned_data['titulo']}"
-            registrar_uso(request.user, accion)
-            return redirect('detalle_libro', pk=pk)
+def editar_libro(request, pk):
+    if request.user.groups.filter(name='bibliotecario').exists():
+        libro = Libro.objects.get(pk=pk)
+        if request.method == 'POST':
+            form = LibroForm(request.POST, instance=libro)
+            if form.is_valid():
+                form.save()
+                accion = f"Actualizó el libro '{form.cleaned_data['titulo']}'"
+                registrar_uso(request.user, accion, 'Libro')
+                datos = { 'info': 'libro', 'mensaje': f'Has actualizado el libro {form.cleaned_data["titulo"]} exitosamente.', 'libros': Libro.objects.all()}
+                return render(request, 'lista_libros.html', datos)
+        else:
+            form = LibroForm(instance=libro)
+        return render(request, 'libro_form.html', {'form': form})
     else:
-        form = LibroForm(instance=libro)
-    return render(request, 'libro_form.html', {'form': form})
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 
 @login_required
 def eliminar_libro(request, pk):
-    if request.method == 'POST':
-        accion = f"{request.user.username} eliminó el libro {Libro.objects.get(pk=pk).titulo}"
-        registrar_uso(request.user, accion)
-        Libro.objects.filter(pk=pk).delete()
-    return redirect('lista_libros')
-
+    if request.user.groups.filter(name='bibliotecario').exists():
+        if request.method == 'POST':
+            accion = f"Eliminó el libro '{Libro.objects.get(pk=pk).titulo}'"
+            registrar_uso(request.user, accion, 'Libro')
+            Libro.objects.filter(pk=pk).delete()
+            datos = { 'info': 'libro', 'mensaje': f'Has eliminado el libro exitosamente.', 'libros': Libro.objects.all()}
+            return render(request, 'lista_libros.html', datos)
+        return redirect('lista_libros')
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 
 @login_required
-def manejar_prestamo(request, pk=None):
-    prestamo = None
-    if pk:
-        prestamo = get_object_or_404(Prestamo, pk=pk)
-        form = PrestamoForm(request.POST or None, instance=prestamo)
+def manejar_prestamo(request, pk):
+    if 'nuevo' in request.path:
+        return manejar_nuevo_prestamo(request, pk)
     else:
-        form = PrestamoForm(request.POST or None)
+        return manejar_actualizar_prestamo(request, pk)
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        accion = f"{request.user.username} pidió prestado '{form.cleaned_data['libros'][0]}'"
-        registrar_uso(request.user, accion, 'prestamo')
-        return redirect('lista-libros')
+def manejar_nuevo_prestamo(request, libro_pk):
+    libro = get_object_or_404(Libro, pk=libro_pk)
+    if request.method == 'POST':
+        form = PrestamoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # actualizar stock del libro
+            if libro.stock > 0:
+                libro.stock -= 1
+            else:
+                datos = { 'info': 'prestamo', 'mensaje': f'No hay stock disponible para el libro {libro.titulo}.', 'libros': Libro.objects.all()}
+                return render(request, 'lista_libros.html', datos)
+            libro.save()
+            registrar_uso(request.user, f"Pidió prestado '{libro.titulo}'", 'Prestamo')
+            datos = { 'info': 'prestamo', 'mensaje': f'Has pedido prestado el libro {libro.titulo} exitosamente.', 'libros': Libro.objects.all()}
+            return render(request, 'lista_libros.html', datos)
+    else:
+        form = PrestamoForm(initial={'libros': [libro], 'solicitante': request.user})
+
+    return render(request, 'prestamo.html', {'form': form, 'prestamo': None})
+
+def manejar_actualizar_prestamo(request, prestamo_pk):
+    prestamo = get_object_or_404(Prestamo, pk=prestamo_pk)
+    if request.method == 'POST':
+        form = PrestamoForm(request.POST, instance=prestamo)
+        if form.is_valid():
+            form.save()
+            registrar_uso(request.user, f"Actualizó el préstamo para '{prestamo.libros.all().first().titulo}'", 'Prestamo')
+            return redirect('lista-libros')
+    else:
+        form = PrestamoForm(instance=prestamo)
 
     return render(request, 'prestamo.html', {'form': form, 'prestamo': prestamo})
 
 @login_required
 def eliminar_prestamo(request, pk):
-    Prestamo.objects.filter(pk=pk).delete()
-    accion = f"{request.user.username} eliminó el prestamo {Prestamo.objects.get(pk=pk)}"
-    registrar_uso(request.user, accion, 'prestamo')
-    return redirect('lista_prestamos')
+    if request.user.groups.filter(name='bibliotecario').exists():
+        Prestamo.objects.filter(pk=pk).delete()
+        accion = f"Eliminó el prestamo con id {pk}"
+        registrar_uso(request.user, accion, 'Prestamo')
+        return redirect('lista_prestamos')
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 
 @login_required
 def marcar_devuelto(request, pk):
-    prestamo = Prestamo.objects.get(pk=pk)
-    prestamo.estado = 'Devuelto'
-    prestamo.save()
-    accion = f"{request.user.username} marcó como devuelto el prestamo {Prestamo.objects.get(pk=pk)}"
-    registrar_uso(request.user, accion, 'prestamo')
-    return redirect('prestamos')
+    if request.user.groups.filter(name='bibliotecario').exists():
+        prestamo = Prestamo.objects.get(pk=pk)
+        prestamo.estado = 'Devuelto'
+        prestamo.save()
+        accion = f"Marcó como devuelto el préstamo con id {pk}"
+        registrar_uso(request.user, accion, 'Prestamo')
+        return redirect('prestamos')
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 
 @login_required
 def lista_prestamos(request):
@@ -164,27 +205,34 @@ def lista_prestamos(request):
 
 @login_required
 def lista_todos_prestamos(request):
-    prestamos = Prestamo.objects.all().order_by('-fecha_prestamo')
+    if request.user.groups.filter(name='bibliotecario').exists():
+        prestamos = Prestamo.objects.all().order_by('-fecha_prestamo')
 
-    # Configuración de la paginación
-    paginator = Paginator(prestamos, 10)
-    page = request.GET.get('page')
-    prestamos = paginator.get_page(page)
+        # Configuración de la paginación
+        paginator = Paginator(prestamos, 10)
+        page = request.GET.get('page')
+        prestamos = paginator.get_page(page)
 
-    return render(request, 'lista_prestamos.html', {'prestamos': prestamos})
+        return render(request, 'lista_prestamos.html', {'prestamos': prestamos})
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 
 @login_required
 def lista_historial(request):
-    # Obtiene todos los historiales y los ordena por fecha
-    historiales_list = HistorialMovimientos.objects.all().order_by('-fecha')
+    if request.user.groups.filter(name='bibliotecario').exists():
+        # Obtiene todos los historiales y los ordena por fecha
+        historiales_list = HistorialMovimientos.objects.all().order_by('-fecha')
 
-    # Configuración de la paginación
-    paginator = Paginator(historiales_list, 10) # Muestra 10 historiales por página
-    page = request.GET.get('page')
-    historiales = paginator.get_page(page)
+        # Configuración de la paginación
+        paginator = Paginator(historiales_list, 10) # Muestra 10 historiales por página
+        page = request.GET.get('page')
+        historiales = paginator.get_page(page)
 
-    return render(request, 'historial.html', {'historiales': historiales})
-
+        return render(request, 'historial.html', {'historiales': historiales})
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
 class DetallePrestamo(DetailView):
     model = Prestamo
     template_name = 'detalle_prestamo.html'
@@ -193,7 +241,3 @@ def registrar_uso(user, accion, tabla=None):
     # guardar en HistorialMovimientos
     datos = { 'usuario': user, 'accion': accion, 'tabla': tabla }
     HistorialMovimientos.objects.create(**datos)
-
-
-
-    

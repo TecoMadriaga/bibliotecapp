@@ -10,44 +10,49 @@
         </div>
         <div class="row">
             {% if mensaje %}
-            <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center"
-                <h2 class="text-center">{{ mensaje }}</h2>
-                <button class="btn btn-primary"><a href="{% url 'lista-libros' %}" class="text-white">Ver libros disponibles</a></button>
-            </div>
-            {% else %}
-            <table class="table w-100">
-                <thead>
-                    <tr>
-                        <th scope="col">Libro</th>
-                        <th scope="col">Fecha de préstamo</th>
-                        <th scope="col">Fecha de devolución</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Multa</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for prestamo in prestamos %}
-                    
-                    {% for libro in prestamo.libros.all %}
-                    <tr>
-                        <td><a href="{% url 'detalle-libro' libro.id %}">{{ libro.titulo }}</a></td>
-                        <td>{{ prestamo.fecha_prestamo }}</td>
-                        <td>{{ prestamo.fecha_devolucion_estimada  }}</td>
-                        {% if prestamo.estado == 'Prestado' %}
-                        <td>En préstamo</td>
-                        {% else %}
-                        <td>Devuelto</td>
-                        {% endif %}
-                        {% if prestamo.multa == 0 %}
-                        <td>Sin multa</td>
-                        {% else %}
-                        <td>$ {{ prestamo.multa }}</td>
-                        {% endif %}
-                    {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+                    <h2 class="text-center">{{ mensaje }}</h2>
+                    <button class="btn btn-primary">
+                        <a href="{% url 'lista-libros' %}" class="text-white text-decoration-none">Ver libros disponibles</a>
+                    </button>
+                </div>
+                {% else %}
+                <table class="table table-striped table-hover table-responsive">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Libro</th>
+                            <th scope="col">Fecha de préstamo</th>
+                            <th scope="col">Fecha de devolución</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Multa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prestamo in prestamos %}
+                            {% for libro in prestamo.libros.all %}
+                                <tr>
+                                    <td><a href="{% url 'detalle-libro' libro.id %}" class="text-decoration-none">{{ libro.titulo }}</a></td>
+                                    <td>{{ prestamo.fecha_prestamo }}</td>
+                                    <td>{{ prestamo.fecha_devolucion_estimada }}</td>
+                                    <td>
+                                        {% if prestamo.estado == 'Devuelto' %}
+                                        <span class="badge bg-success">Devuelto</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">En préstamo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if prestamo.multa == 0 %}
+                                            Sin multa
+                                        {% else %}
+                                            $ {{ prestamo.multa }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
     </div>
