@@ -1,5 +1,5 @@
-from .forms import LibroForm, PrestamoForm
-from app.models import Libro, Prestamo, HistorialMovimientos
+from .forms import LibroForm, PrestamoForm, CategoriaForm, AutorForm, EditorialForm
+from app.models import Libro, Prestamo, HistorialMovimientos, Categoria, Autor, Editorial
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -43,7 +43,6 @@ def login_view(request):
         form = AuthenticationForm()
 
     return render(request, 'login.html', {'form': form})
-
 
 def user_login(request):
     if request.method == "POST":
@@ -121,6 +120,58 @@ def eliminar_libro(request, pk):
             datos = { 'info': 'libro', 'mensaje': f'Has eliminado el libro exitosamente.', 'libros': Libro.objects.all()}
             return render(request, 'lista_libros.html', datos)
         return redirect('lista_libros')
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
+
+@login_required
+def crear_categoria(request):
+    if request.user.groups.filter(name='bibliotecario').exists():
+        if request.method == 'POST':
+            form = CategoriaForm(request.POST)
+            if form.is_valid():
+                form.save()
+                accion = f"Creó la categoría {form.cleaned_data['nombre']}"
+                registrar_uso(request.user, accion, 'Categoria')
+                datos = { 'info': 'categoria', 'mensaje': f'Has creado la categoría {form.cleaned_data["nombre"]} exitosamente.', 'libros': Libro.objects.all()}
+                return render(request, 'lista_libros.html', datos)
+        else:
+            form = CategoriaForm()
+        return render(request, 'categoria_form.html', {'form': form})
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
+
+def crear_autor(request):
+    if request.user.groups.filter(name='bibliotecario').exists():
+        if request.method == 'POST':
+            form = AutorForm(request.POST)
+            if form.is_valid():
+                form.save()
+                accion = f"Creó el autor {form.cleaned_data['nombre']} {form.cleaned_data['apellido_paterno']} {form.cleaned_data['apellido_materno']}"
+                registrar_uso(request.user, accion, 'Autor')
+                datos = { 'info': 'autor', 'mensaje': f'Has creado el autor {form.cleaned_data["nombre"]} {form.cleaned_data["apellido_paterno"]} {form.cleaned_data["apellido_materno"]} exitosamente.', 'libros': Libro.objects.all()}
+                return render(request, 'lista_libros.html', datos)
+        else:
+            form = AutorForm()
+        return render(request, 'autor_form.html', {'form': form})
+    else:
+        group_error = f"No tienes permisos para acceder a esta página."
+        return render(request, 'index.html', {'group_error': group_error})
+    
+def crear_editorial(request):
+    if request.user.groups.filter(name='bibliotecario').exists():
+        if request.method == 'POST':
+            form = EditorialForm(request.POST)
+            if form.is_valid():
+                form.save()
+                accion = f"Creó la editorial {form.cleaned_data['nombre']}"
+                registrar_uso(request.user, accion, 'Editorial')
+                datos = { 'info': 'editorial', 'mensaje': f'Has creado la editorial {form.cleaned_data["nombre"]} exitosamente.', 'libros': Libro.objects.all()}
+                return render(request, 'lista_libros.html', datos)
+        else:
+            form = EditorialForm()
+        return render(request, 'editorial_form.html', {'form': form})
     else:
         group_error = f"No tienes permisos para acceder a esta página."
         return render(request, 'index.html', {'group_error': group_error})

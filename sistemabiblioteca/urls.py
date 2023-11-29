@@ -7,6 +7,9 @@ from django.urls import path
 urlpatterns = [
     path('', views.index, name="index"),
     path('admin/', admin.site.urls),
+    path('categorias/crear/', views.crear_categoria, name='add-categoria'),
+    path('autores/crear/', views.crear_autor, name='add-autor'),
+    path('editoriales/crear/', views.crear_editorial, name='add-editorial'),
     path('historial/', views.lista_historial, name='historial'),
     path('libros/', views.lista_libros, name='lista-libros'),
     path('libros/<int:pk>', views.DetalleLibro.as_view(), name='detalle-libro'),

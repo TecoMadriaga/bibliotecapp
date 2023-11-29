@@ -1,5 +1,5 @@
 from .models import Prestamo
-from app.models import Libro, Prestamo
+from app.models import Libro, Prestamo, Categoria, Autor, Editorial
 from django import forms
 from django.forms import DateInput
 from django.utils import timezone
@@ -30,3 +30,28 @@ class LibroForm(forms.ModelForm):
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class AutorForm(forms.ModelForm):
+    class Meta:
+        model = Autor
+        fields = ['nombre', 'apellido_paterno', 'apellido_materno']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellido_paterno': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellido_materno': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class EditorialForm(forms.ModelForm):
+    class Meta:
+        model = Editorial
+        fields = ['nombre']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+        }
